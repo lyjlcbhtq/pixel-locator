@@ -1,0 +1,38 @@
+{
+  "_说明": "guibot 声明式流程示例。这是一个模板：请按你自己的界面改文字，不要直接拿去点真实系统。",
+  "_用法": [
+    "只校验流程结构（任何环境都能过）：python tools/guibot.py examples/04_flow.json --check",
+    "演练（解析但不真的点击；需要界面上真有这些文字）：python tools/guibot.py examples/04_flow.json --dry",
+    "真跑：python tools/guibot.py examples/04_flow.json"
+  ],
+  "_要点": [
+    "每个 find/click 都靠 OCR 找文字 → 拿到像素级坐标，零模型、零 token",
+    "同屏有多个同名文字时，click 有可能点错：此时请改用带模板校验的定位（tools/vlocate.py）",
+    "wait 用 appear/disappear 等待界面变化，比写死 sleep 稳",
+    "assert 用来验收结果；mode=absent 表示断言某文字不该出现"
+  ],
+
+  "vars": {
+    "username": "alice",
+    "password": "s3cret"
+  },
+
+  "steps": [
+    {"action": "find", "text": "用户名", "retry": 3},
+    {"action": "click", "text": "用户名"},
+    {"action": "type", "text": "${username}"},
+
+    {"action": "find", "text": "密码"},
+    {"action": "click", "text": "密码"},
+    {"action": "type", "text": "${password}"},
+
+    {"action": "click", "text": "登录"},
+    {"action": "wait", "text": "加载中", "mode": "disappear", "timeout": 15},
+
+    {"action": "assert", "text": "登录失败", "mode": "absent"},
+    {"action": "assert", "text": "欢迎", "mode": "present"},
+
+    {"action": "screenshot", "path": "after-login.png"},
+    {"action": "set", "name": "note", "value": "${last.text}"}
+  ]
+}

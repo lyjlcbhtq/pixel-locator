@@ -1,7 +1,13 @@
 # pixel-locator
 
-> **给 AI 精准的屏幕坐标。** 视觉模型负责看懂界面，OCR 与模板匹配负责给出像素级落点。
-> 纯 CPU · 零 GPU · 主路径零 token · 可完全不依赖任何视觉大模型运行
+[![smoke](https://github.com/lyjlcbhtq/pixel-locator/actions/workflows/smoke.yml/badge.svg)](https://github.com/lyjlcbhtq/pixel-locator/actions/workflows/smoke.yml)
+![python](https://img.shields.io/badge/python-3.10%2B-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+![GPU](https://img.shields.io/badge/GPU-not%20required-brightgreen)
+![tokens](https://img.shields.io/badge/tokens-0%20on%20main%20path-success)
+
+> **给 AI 精准的点击坐标。** 视觉模型看界面会偏 30~40 像素，OCR 与模板匹配能落到那个像素上。
+> 纯 CPU · 无 GPU · 不调云 API · 零 token 消耗 · 没有视觉模型也能用
 >
 > **Pixel-precise screen coordinates for AI agents.** Let the vision model understand the
 > interface; let OCR and template matching deliver the exact click point.
@@ -21,6 +27,8 @@
 | OCR 像素级 bbox | (802, 1196) | **精确命中** |
 
 误差约 **30~40 逻辑像素**，大于输入框本身的行高。
+
+![为什么不能直接用视觉模型的坐标](docs/demo-accuracy.png)
 
 这不是模型不够聪明，而是结构性的：主流多模态模型会把输入图压到很粗的 patch 网格
 （例如 14px patch、3:1 下采样、单图上限数百 token）。一张 1280×900 的截图进入模型时，
@@ -51,6 +59,8 @@
 ---
 
 ## 三、定位路径与实测速度
+
+![分层定位架构](docs/demo-architecture.png)
 
 `vlocate` 把下面这些路径按"从便宜到昂贵"依次尝试，前面命中就不往下走：
 
@@ -85,6 +95,10 @@
 3. **毫秒级只能靠绕开 OCR**：常态定位 = 坐标记忆（1ms）+ tmatch 验证（4ms）。
    所以正确做法是让 **OCR 尽量只出现一次**，其结果沉淀为模板与记忆。
 
+![定位结果标注](docs/demo-locate.png)
+
+*上图由 `python docs/make_demo.py` 生成——图里的每个坐标都是工具真实输出的，不是画上去的。*
+
 ---
 
 ## 四、快速开始
@@ -112,6 +126,18 @@ python toolkit.py vlocate --image fixtures/sample.png \
 
 # 6. 完全不知道叫什么？列出候选，让上层 AI 自己挑
 python toolkit.py vlocate --image fixtures/sample.png --list-all
+```
+
+**想直接看能跑的东西**：
+
+```bash
+python examples/01_locate_text.py     # OCR 找字，拿到像素级坐标
+python examples/02_hybrid_locate.py   # 锚点 + 模板双证定位（推荐用法）
+python examples/03_python_api.py      # 内嵌调用，列出屏幕上的文字块与坐标
+python tools/guibot.py examples/04_flow.json --check   # 校验声明式流程
+
+python benchmarks/bench_ocr.py        # 复现 OCR 速度数据
+python benchmarks/bench_tmatch.py     # 复现「全屏 vs 锚点窗口」速度差
 ```
 
 `paths.json` 是可选配置：**不创建也能跑**（自动回退 `paths.example.json`）。
@@ -244,11 +270,14 @@ pillow / numpy / opencv-python / rapidocr-onnxruntime / requests / mss
 ```
 pixel-locator/
 ├── toolkit.py              统一入口（list / doctor / paths / <工具>）
-├── smoke.py                冒烟测试（自带素材，克隆即可跑）
+├── smoke.py                冒烟测试（自带素材，克隆即可跑；--ci 供 CI 使用）
 ├── make_fixtures.py        重新生成测试素材
 ├── paths.example.json      配置模板（全部字段可空，不创建也能跑）
 ├── requirements.txt
+├── README.md / README.en.md
+├── CHANGELOG.md
 ├── LICENSE                 MIT
+├── .github/workflows/      GitHub Actions 冒烟 CI
 ├── tools/
 │   ├── vlocate.py          混合定位（招牌）
 │   ├── findtext.py         OCR 定位（缓存 + 守护进程）
@@ -256,6 +285,9 @@ pixel-locator/
 │   ├── guibot.py           GUI 流程编排
 │   ├── winctl.py           窗口控制
 │   └── headless_check.py   无头验收
+├── examples/               四个可直接运行的示例
+├── benchmarks/             两个基准脚本（复现 README 里的全部数字）
+├── docs/                   演示图 + 可复现的生成脚本
 └── fixtures/               冒烟测试素材
 ```
 

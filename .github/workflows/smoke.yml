@@ -1,0 +1,47 @@
+name: smoke
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: smoke test (python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 缓存 pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 环境自检
+        run: python toolkit.py doctor
+        continue-on-error: true
+
+      - name: 冒烟测试（CI 子集：不依赖真实桌面）
+        run: python smoke.py --ci
+
+      - name: 示例 2 混合定位（锚点 + 模板，零模型路径）
+        run: python examples/02_hybrid_locate.py
+
+      - name: 流程示例结构校验
+        run: python tools/guibot.py examples/04_flow.json --check
