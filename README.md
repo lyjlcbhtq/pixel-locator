@@ -101,17 +101,44 @@
 
 ---
 
-## 四、快速开始
+## 四、下载与安装
+
+**下载有三种方式**（压缩包由 GitHub 自动生成，不需要作者上传）：
+
+| 方式 | 操作 / 地址 | 适合 |
+|---|---|---|
+| **下载 ZIP** | 仓库页绿色 **`Code`** 按钮 → **Download ZIP** | 不想装 git，最省事 |
+| **git clone** | `git clone https://github.com/lyjlcbhtq/pixel-locator.git` | 想跟着更新 |
+| **固定版本** | `https://github.com/lyjlcbhtq/pixel-locator/archive/refs/tags/v1.0.0.zip` | 要可复现的版本 |
+
+**装好之后，一键安装脚本会做完剩下的事**：
+
+```bat
+install.bat          :: Windows —— 双击运行即可
+```
 
 ```bash
-git clone https://github.com/<你的用户名>/pixel-locator.git
+bash install.sh      # Linux / macOS
+```
+
+脚本做四件事：检查 Python → 安装依赖 → 环境自检 → 冒烟测试。
+（依赖里含 OCR 模型，首次安装需要能访问 pypi.org）
+
+**前提**：Python **3.10 或更高**。Windows 安装时务必勾选 **"Add Python to PATH"**。
+
+---
+
+### 手动安装（三步）
+
+```bash
+git clone https://github.com/lyjlcbhtq/pixel-locator.git
 cd pixel-locator
 pip install -r requirements.txt
 
 # 1. 环境自检（应全部 ok）
 python toolkit.py doctor
 
-# 2. 冒烟测试（应 9/9）
+# 2. 冒烟测试（应 10/10）
 python smoke.py
 
 # 3. OCR 找字：拿到像素级坐标
@@ -286,6 +313,7 @@ pixel-locator/
 ├── toolkit.py              统一入口（list / doctor / paths / <工具>）
 ├── smoke.py                冒烟测试（自带素材，克隆即可跑；--ci 供 CI 使用）
 ├── check_platform.py       跨平台导入自检（防止 Windows 专有导入混入）
+├── install.bat / install.sh  一键安装（检查 Python → 装依赖 → 自检 → 冒烟）
 ├── make_fixtures.py        重新生成测试素材
 ├── paths.example.json      配置模板（全部字段可空，不创建也能跑）
 ├── requirements.txt

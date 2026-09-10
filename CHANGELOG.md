@@ -2,6 +2,25 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [未发布]
+
+### 新增
+- `install.bat` / `install.sh`：一键安装脚本（检查 Python → 安装依赖 → 环境自检 → 冒烟测试）
+- README 中英双语新增「下载与安装」章节：三种获取方式（Download ZIP / git clone / 版本快照）
+- `check_platform.py`：跨平台导入自检，并接入 CI
+
+### 修复
+- **CI 全红**：`findtext.py` / `headless_check.py` 顶层 `import ctypes.wintypes` 在
+  Linux / macOS 上不存在，导致 Ubuntu CI 上 vlocate / findtext / guibot 全部导入失败
+- 误提交的临时文件 `_commitmsg.txt` 已移除，并在 `.gitignore` 中永久排除
+- `install.bat` 改用 CRLF 换行（Windows 批处理的要求）与纯 ASCII 提示，
+  避免换行符错位和跨语言环境乱码
+- README 中过时的 `<你的用户名>` 占位符、以及「冒烟应 9/9」修正为真实地址与 10/10
+
+### 变更
+- `findtext` / `guibot` / `vlocate` / `winctl` 的平台相关能力改为给出明确错误，
+  不再在非 Windows 平台直接崩溃；只读能力保持跨平台可用
+
 ## [1.0.0] - 2026-09-10
 
 首个公开版本。主题聚焦：**给 AI 精准的屏幕坐标**。
