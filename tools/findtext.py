@@ -42,16 +42,21 @@ v4.0 提速要点（详见 提速报告.md）：
 
 import argparse
 import ctypes
-import subprocess
-import ctypes.wintypes
 import difflib
 import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import unicodedata
+
+# ctypes.wintypes 是 Windows 专有模块，在 Linux / macOS 上不存在。
+# 本模块的核心能力（截屏、OCR、坐标计算）是跨平台的，只有窗口相关函数
+# 和点击注入依赖 Win32；因此这里条件导入，保证非 Windows 平台也能 import。
+if sys.platform == "win32":
+    import ctypes.wintypes  # noqa: F401
 
 # ---------------------------------------------------------------------------
 # 全局：DPI 感知。必须最先设置，保证截屏为完整物理分辨率、坐标为物理像素。

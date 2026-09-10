@@ -1,0 +1,19 @@
+修复 CI 全红：移除 Windows 专有顶层导入
+
+根因：tools/findtext.py 与 tools/headless_check.py 在模块顶层写了
+import ctypes.wintypes —— 该模块在 Linux/macOS 上不存在，导致 Ubuntu CI 上
+vlocate/findtext/guibot 全部 ModuleNotFoundError。而 README 却声称「核心跨平台」，
+属于文档与实现不一致，这次一并纠正。
+
+修改：
+- findtext.py / headless_check.py：改为条件导入（仅 Windows）
+- guibot.py：模块级 ctypes.windll.user32 改为条件赋值，非 Windows 用占位对象，
+  只读动作（find/wait/assert/screenshot）在其它平台仍可用，键鼠注入给出明确错误
+- winctl.py：文件顶部加平台守卫，非 Windows 输出可读 JSON 错误并退出
+- vlocate.py：--click 在非 Windows 上给出明确错误
+- 新增 check_platform.py：静态自检「未受保护的平台专有导入/调用」，并接入 CI
+- CI：安装 libgl1 / libglib2.0-0 / fonts-noto-cjk（OpenCV 运行库与中文字体）
+- README 中英双语：平台支持改为如实的分层表格
+
+验证：doctor ok、冒烟 10/10、混合定位回归 (680,340) 与修改前完全一致、
+check_platform 6/6 通过

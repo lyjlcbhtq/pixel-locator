@@ -28,6 +28,11 @@ jobs:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
 
+      - name: 系统依赖（OpenCV 运行库 + 中文字体）
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgl1 libglib2.0-0 fonts-noto-cjk
+
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
@@ -36,6 +41,9 @@ jobs:
       - name: 环境自检
         run: python toolkit.py doctor
         continue-on-error: true
+
+      - name: 跨平台导入自检（防止再次出现 Windows 专有导入）
+        run: python check_platform.py
 
       - name: 冒烟测试（CI 子集：不依赖真实桌面）
         run: python smoke.py --ci

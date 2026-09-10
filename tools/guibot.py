@@ -105,7 +105,20 @@ def require_ft(action):
 # ---------------------------------------------------------------------------
 # Windows 输入注入（ctypes SendInput，零第三方依赖）
 # ---------------------------------------------------------------------------
-user32 = ctypes.windll.user32
+class _Win32Unavailable:
+    """非 Windows 平台的占位对象：任何 Win32 调用都抛出可读的错误。
+
+    这样 guibot 的只读动作（find / wait / assert / screenshot）在 Linux / macOS
+    上依然可用，只有真正需要注入键鼠的动作才会失败，且失败信息是清楚的。
+    """
+
+    def __getattr__(self, name):
+        raise RuntimeError(
+            f"该动作需要 Windows（Win32 输入注入：{name}）。当前平台为 {sys.platform}；"
+            "只读动作（find / wait / assert / screenshot）在其它平台仍可使用。")
+
+
+user32 = ctypes.windll.user32 if sys.platform == "win32" else _Win32Unavailable()
 INPUT_KEYBOARD = 1
 KEYEVENTF_KEYUP = 0x0002
 KEYEVENTF_UNICODE = 0x0004

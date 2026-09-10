@@ -24,12 +24,29 @@ winctl.py —— Windows 窗口控制工具 v1.0（纯标准库，ctypes 调 Win
 截图坐标系：图内 (x,y) → 屏幕 (rect[0]+x, rect[1]+y)（输出 JSON 里已给 rect）。
 """
 import argparse
-import ctypes
 import json
 import os
 import sys
 import time
-from ctypes import wintypes
+
+# ---------------------------------------------------------------------------
+# 平台守卫：本工具完全建立在 Win32 API 之上（user32 / gdi32 / gdiplus），
+# 仅支持 Windows。在其他平台上给出明确可读的 JSON 错误并退出，
+# 而不是让使用者看到晦涩的 ImportError 或 WinDLL 失败。
+# ---------------------------------------------------------------------------
+if sys.platform != "win32":
+    print(json.dumps({
+        "ok": False,
+        "tool": "winctl",
+        "error": "winctl 仅支持 Windows（依赖 user32 / gdi32 / gdiplus 的 Win32 API）",
+        "error_en": "winctl is Windows-only: it calls Win32 APIs through ctypes.WinDLL.",
+        "platform": sys.platform,
+        "hint": "在 Linux / macOS 上请改用 vlocate、findtext、tmatch —— 这三个工具的核心定位能力跨平台。",
+    }, ensure_ascii=False))
+    sys.exit(2)
+
+import ctypes  # noqa: E402
+from ctypes import wintypes  # noqa: E402
 
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")

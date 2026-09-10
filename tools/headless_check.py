@@ -17,7 +17,6 @@ headless 浏览器**架构上不创建任何窗口**，从根源上杜绝"弹窗
 """
 import argparse
 import ctypes
-import ctypes.wintypes
 import json
 import os
 import shutil
@@ -25,6 +24,12 @@ import subprocess
 import sys
 import time
 import urllib.parse
+
+# Windows 专有模块：非 Windows 平台上不存在。本工具整体依赖 Windows 的
+# 浏览器路径与前台窗口 API，但在其他平台上也要能被 import（供工具包自检），
+# 所以条件导入而不是直接失败。
+if sys.platform == "win32":
+    import ctypes.wintypes  # noqa: F401
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 

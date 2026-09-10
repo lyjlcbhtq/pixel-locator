@@ -243,8 +243,22 @@ python tools/headless_check.py 页面.html --out shot.png --expect "提交成功
 - 它的独特价值是返回 `foreground{before,during,after,unchanged}`，**自证全程没抢用户焦点**
 
 ### 10. 平台与安全
-- `winctl` 的窗口能力依赖 **Win32**（Windows 专属）；`findtext` / `tmatch` / `vlocate` /
-  `guibot` / `headless_check` 的核心逻辑跨平台，但实时截屏路径用 `mss`
+
+**平台支持是分层的**，请按这张表判断（`python check_platform.py` 可静态自检，
+CI 也会在 Ubuntu 上真实执行一次）：
+
+| 工具 | Windows | Linux / macOS | 说明 |
+|---|---|---|---|
+| `tmatch` | 可用 | **可用** | 纯模板匹配，完全跨平台 |
+| `vlocate` | 可用 | **可用**（只定位） | `--click` 需要 Windows |
+| `findtext` | 可用 | **可用**（`--image` 路径） | 实时截屏需 `mss` + 图形界面；窗口/点击需 Windows |
+| `guibot` | 可用 | **可用**（只读动作） | `find / wait / assert / screenshot` 跨平台；`click / type / key` 需 Windows |
+| `winctl` | 可用 | 不支持 | Win32 窗口 API，仅 Windows |
+| `headless_check` | 可用 | 不支持 | 依赖 Edge / Chrome 路径与前台窗口 API |
+
+- 非 Windows 平台上，需要键鼠注入的动作会抛出**明确的中文错误**，而不是静默失败或崩溃
+- 本项目曾因 `findtext.py` 顶层写 `import ctypes.wintypes` 导致 CI 全红，
+  `check_platform.py` 就是为杜绝这类问题加入的
 - **安全提醒**：本工具集能模拟键鼠。请勿在无人看管的敏感界面上放任自动点击；
   写流程时先用 `--dry` 演练
 
@@ -271,6 +285,7 @@ pillow / numpy / opencv-python / rapidocr-onnxruntime / requests / mss
 pixel-locator/
 ├── toolkit.py              统一入口（list / doctor / paths / <工具>）
 ├── smoke.py                冒烟测试（自带素材，克隆即可跑；--ci 供 CI 使用）
+├── check_platform.py       跨平台导入自检（防止 Windows 专有导入混入）
 ├── make_fixtures.py        重新生成测试素材
 ├── paths.example.json      配置模板（全部字段可空，不创建也能跑）
 ├── requirements.txt

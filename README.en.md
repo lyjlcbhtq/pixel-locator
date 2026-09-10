@@ -253,9 +253,24 @@ These are **real traps we hit**, not hypothetical warnings.
   **proves the foreground window never changed**
 
 ### 10. Platform and safety
-- `winctl`'s window capabilities rely on **Win32** (Windows only); the core logic of
-  `findtext` / `tmatch` / `vlocate` / `guibot` / `headless_check` is cross-platform, but the
-  live screen-capture path uses `mss`
+
+**Platform support is layered** — use this table (`python check_platform.py` checks it
+statically, and CI also runs the real thing on Ubuntu):
+
+| Tool | Windows | Linux / macOS | Notes |
+|---|---|---|---|
+| `tmatch` | yes | **yes** | pure template matching, fully cross-platform |
+| `vlocate` | yes | **yes** (locating only) | `--click` requires Windows |
+| `findtext` | yes | **yes** (`--image` path) | live capture needs `mss` + a display; window/click need Windows |
+| `guibot` | yes | **yes** (read-only actions) | `find / wait / assert / screenshot` are cross-platform; `click / type / key` need Windows |
+| `winctl` | yes | no | Win32 window APIs, Windows only |
+| `headless_check` | yes | no | depends on Edge / Chrome paths and foreground-window APIs |
+
+- On non-Windows platforms, actions that inject mouse or keyboard input raise a **clear
+  error** instead of failing silently or crashing
+- This project once went fully red on CI because `findtext.py` imported `ctypes.wintypes`
+  at module level; `check_platform.py` exists to make that class of bug impossible to
+  reintroduce
 - **Safety note**: this toolkit can synthesize mouse and keyboard input. Do not let it click
   unattended on sensitive interfaces, and always try `--dry` first for a new flow
 
@@ -284,6 +299,7 @@ pillow / numpy / opencv-python / rapidocr-onnxruntime / requests / mss
 pixel-locator/
 ├── toolkit.py              Unified entry point (list / doctor / paths / <tool>)
 ├── smoke.py                Smoke test (bundled fixtures; --ci for CI)
+├── check_platform.py       Cross-platform import check (blocks Windows-only imports)
 ├── make_fixtures.py        Regenerate test fixtures
 ├── paths.example.json      Config template (all fields optional; not needed to run)
 ├── requirements.txt

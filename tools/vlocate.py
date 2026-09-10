@@ -187,6 +187,10 @@ def expand(region, factor, w, h):
 
 
 def click_at(x, y):
+    if sys.platform != "win32":
+        raise RuntimeError(
+            "click 仅在 Windows 上可用（通过 Win32 注入鼠标事件）。"
+            "在其它平台上请让本工具只做定位，点击交给宿主程序执行。")
     u = ctypes.windll.user32
     u.SetCursorPos(int(x), int(y))
     time.sleep(0.08)
