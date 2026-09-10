@@ -1,0 +1,21 @@
+{
+  "_说明": "本文件是模板。复制为 paths.json 后按需修改即可；所有字段都是可选的，缺失时工具会回退到安全默认值（不会报错、不会硬编码任何路径）。",
+  "_用法": "cp paths.example.json paths.json",
+
+  "proxy": {
+    "http": ""
+  },
+  "_proxy说明": "形如 127.0.0.1:10808。仅联网下载类任务需要；留空则 doctor 不检查代理。",
+
+  "vlm": {
+    "baseURL": "",
+    "model": "",
+    "apiKeyEnv": "VLM_API_KEY"
+  },
+  "_vlm说明": "vlocate 第 3 层兜底用的 OpenAI 兼容视觉端点（任意厂商）。留空也完全可用：模板/锚点/候选清单三条路径全部本地运行、零 token。apiKeyEnv 指向存放密钥的环境变量名，不要把密钥写进本文件。",
+
+  "findtext": {
+    "port": 8377
+  },
+  "_findtext说明": "OCR 守护进程端口（默认 8377）。启动：python tools/findtext.py --serve。守护模式下每次查询从约 7 秒降到约 0.2 秒。"
+}

@@ -1,0 +1,14 @@
+# pixel-locator 依赖
+# 核心（必装）：OCR 定位 + 图像处理 + 截图
+pillow>=10.0
+numpy>=1.24
+opencv-python>=4.8
+rapidocr-onnxruntime>=1.3.0
+requests>=2.31.0
+mss>=9.0.0
+
+# 说明：
+# - 全部为 CPU 依赖，**无需 GPU**。tmatch 检测到 CUDA 会自动加速，无卡时自动降级 CPU，结果一致。
+# - rapidocr-onnxruntime 自带 ONNX 模型（首次运行本地加载，无需联网下载）。
+# - requests 只用于 vlocate 的可选第 3 层（VLM 兜底）；不配 VLM 时用不到。
+# - 若只对本地图片做识别与匹配（不做实时屏幕定位），mss 可不装。

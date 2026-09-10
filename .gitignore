@@ -1,0 +1,19 @@
+# 运行时产物
+__pycache__/
+*.py[cod]
+*.tmp
+产出/
+
+# findtext 运行时内容缓存（自动生成，不入库）
+tools/_cache.json
+*_cache.json
+
+# 冒烟测试记录
+冒烟测试记录.json
+
+# 本地配置（含个人路径，不应入库）
+paths.json
+
+# 截图/中间产物
+*.png.bak
+shot*.png
