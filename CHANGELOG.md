@@ -2,7 +2,7 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [未发布]
+## [1.0.1] - 2026-09-10
 
 ### 新增
 - `install.bat` / `install.sh`：一键安装脚本（检查 Python → 安装依赖 → 环境自检 → 冒烟测试）
@@ -66,4 +66,5 @@
 - **零 GPU、零模型训练、零外部服务**：主路径完全本地运行，不消耗任何 API token
 - **没有视觉模型也能完整使用**：模板、锚点、候选清单三条路径全部本地计算
 
+[1.0.1]: https://github.com/lyjlcbhtq/pixel-locator/releases/tag/v1.0.1
 [1.0.0]: https://github.com/lyjlcbhtq/pixel-locator/releases/tag/v1.0.0
